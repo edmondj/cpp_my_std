@@ -1,7 +1,2 @@
-#include "unit_test_manager.hpp"
-
-int main()
-{
-    unit_test_manager::start_console();
-    return 0;
-}
+#define CATCH_CONFIG_MAIN
+#include "catch.hpp"

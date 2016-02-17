@@ -1,31 +1,25 @@
 #include <iostream>
-#include "unit_test_manager.hpp"
+#include "catch.hpp"
 
-using namespace std;
-
-class unit_test_test
+TEST_CASE("Testing the unit test", "[unit_test]")
 {
-public:
-    static void say_hello()
+    SECTION("Say hello")
     {
-        cout << "Hello" << endl;
+        std::cout << "Hello" << std::endl;
     }
 
-    static void count()
+    SECTION("Count to 10")
     {
-        for (size_t i = 0; i < 100; i++)
+        size_t i;
+        for (i = 0; i < 10; i++)
         {
-            cout << i << endl;
+            std::cout << i << std::endl;
         }
+        REQUIRE(i == 10);
     }
 
-    unit_test_test()
+    SECTION("Throw")
     {
-        unit_test_manager::register_test("unit_test", "say hello", &unit_test_test::say_hello);
-        unit_test_manager::register_test("unit_test", "count", &unit_test_test::count);
+        throw std::exception();
     }
-
-    static unit_test_test instance;
-};
-
-unit_test_test unit_test_test::instance;
+}

@@ -64,4 +64,4 @@ namespace my_std
     };
 }
 
-std::ostream& operator<<(std::ostream& out, const my_std::end_point& ep);
+SHARED_EXPORT std::ostream& operator<<(std::ostream& out, const my_std::end_point& ep);
