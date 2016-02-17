@@ -22,11 +22,11 @@ freely, subject to the following restrictions:
 #include <sstream>
 #include "serialize.hpp"
 #include "tinyxml2.hpp"
-#include "attributes.hpp"
+#include "my_std_export.hpp"
 
 namespace my_std
 {
-    class SHARED_EXPORT xml_node_serializer
+    class MY_STD_EXPORT_TAG xml_node_serializer
     {
     public:
         xml_node_serializer(tinyxml2::XMLNode* node);
@@ -216,7 +216,7 @@ namespace my_std
         tinyxml2::XMLNode* _node;
     };
 
-    class SHARED_EXPORT xml_iterating_serializer : public xml_node_serializer
+    class MY_STD_EXPORT_TAG xml_iterating_serializer : public xml_node_serializer
     {
     public:
         xml_iterating_serializer(tinyxml2::XMLNode* node);
@@ -252,7 +252,7 @@ namespace my_std
         tinyxml2::XMLElement* _current;
     };
 
-    class SHARED_EXPORT xml_serializer : public xml_node_serializer
+    class MY_STD_EXPORT_TAG xml_serializer : public xml_node_serializer
     {
     public:
         xml_serializer(const std::string& filename);

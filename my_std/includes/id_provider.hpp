@@ -19,11 +19,11 @@ freely, subject to the following restrictions:
 */
 #pragma once
 
-#include "attributes.hpp"
+#include "my_std_export.hpp"
 
 namespace my_std
 {
-    class SHARED_EXPORT id_provider
+    class MY_STD_EXPORT_TAG id_provider
     {
     public:
         id_provider(unsigned int max = 1000);

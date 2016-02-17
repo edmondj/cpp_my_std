@@ -20,11 +20,13 @@ freely, subject to the following restrictions:
 #pragma once
 
 #ifdef _WIN32
-
 # define SHARED_EXPORT __declspec(dllexport)
-
 #else
-
 # define SHARED_EXPORT __attribute__ ((dllexport))
+#endif
 
+#ifdef _WIN32
+# define SHARED_IMPORT __declspec(dllimport)
+#else
+# define SHARED_IMPORT __attribute__ ((dllimport))
 #endif

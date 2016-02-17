@@ -7,7 +7,7 @@ if (WIN32)
 endif (WIN32)
 
 SET (SOURCE_FILES
-	includes/attributes.hpp
+	includes/my_std_export.hpp
 	includes/end_point.hpp
 	includes/event_waiter.hpp
 	includes/file_system.hpp
@@ -24,6 +24,7 @@ SET (SOURCE_FILES
 	includes/utils.hpp
 	includes/win32_network.hpp
 	includes/xml_serializer.hpp
+	includes/my_std_export.hpp
 	sources/end_point.cpp
 	sources/file_system.cpp
 	sources/id_provider.cpp

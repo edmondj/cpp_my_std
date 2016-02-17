@@ -26,11 +26,11 @@ freely, subject to the following restrictions:
 #else
 # include <netinet/ip.h>
 #endif
-#include "attributes.hpp"
+#include "my_std_export.hpp"
 
 namespace my_std
 {
-    class SHARED_EXPORT end_point 
+    class MY_STD_EXPORT_TAG end_point
     {
     public:
         static const unsigned long address_any;
@@ -64,4 +64,4 @@ namespace my_std
     };
 }
 
-SHARED_EXPORT std::ostream& operator<<(std::ostream& out, const my_std::end_point& ep);
+MY_STD_EXPORT_TAG std::ostream& operator<<(std::ostream& out, const my_std::end_point& ep);

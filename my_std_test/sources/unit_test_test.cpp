@@ -1,25 +1,21 @@
-#include <iostream>
 #include "catch.hpp"
 
-TEST_CASE("Testing the unit test", "[unit_test]")
+TEST_CASE("Say hello", "[unit_test]")
 {
-    SECTION("Say hello")
-    {
-        std::cout << "Hello" << std::endl;
-    }
+    INFO("Hello");
+}
 
-    SECTION("Count to 10")
+TEST_CASE("Count to 10", "[unit_test]")
+{
+    size_t i;
+    for (i = 0; i < 10; i++)
     {
-        size_t i;
-        for (i = 0; i < 10; i++)
-        {
-            std::cout << i << std::endl;
-        }
-        REQUIRE(i == 10);
+        INFO(i);
     }
+    REQUIRE(i == 10);
+}
 
-    SECTION("Throw")
-    {
-        throw std::exception();
-    }
+TEST_CASE("Throw", "[unit_test]")
+{
+    REQUIRE_THROWS(throw std::exception());
 }

@@ -20,20 +20,20 @@ freely, subject to the following restrictions:
 #pragma once
 
 #include <string>
-#include "attributes.hpp"
+#include "my_std_export.hpp"
 
 namespace my_std
 {
     namespace fs
     {
-        SHARED_EXPORT bool file_exists(const std::string& path);
-        SHARED_EXPORT std::string get_self_file_name();
-        SHARED_EXPORT std::string get_file_name(const std::string& path);
-        SHARED_EXPORT std::string get_file_name_without_extension(const std::string& path);
-        SHARED_EXPORT std::string get_directory_name(const std::string& path);
-        SHARED_EXPORT std::string combine(const std::string& left, const std::string& right);
-        SHARED_EXPORT std::string combine(std::initializer_list<std::string> components);
-        SHARED_EXPORT std::string get_cwd();
-        SHARED_EXPORT bool set_cwd(const std::string& path);
+        MY_STD_EXPORT_TAG bool file_exists(const std::string& path);
+        MY_STD_EXPORT_TAG std::string get_self_file_name();
+        MY_STD_EXPORT_TAG std::string get_file_name(const std::string& path);
+        MY_STD_EXPORT_TAG std::string get_file_name_without_extension(const std::string& path);
+        MY_STD_EXPORT_TAG std::string get_directory_name(const std::string& path);
+        MY_STD_EXPORT_TAG std::string combine(const std::string& left, const std::string& right);
+        MY_STD_EXPORT_TAG std::string combine(std::initializer_list<std::string> components);
+        MY_STD_EXPORT_TAG std::string get_cwd();
+        MY_STD_EXPORT_TAG bool set_cwd(const std::string& path);
     }
 }

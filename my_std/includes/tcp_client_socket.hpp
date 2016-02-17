@@ -21,11 +21,11 @@ freely, subject to the following restrictions:
 
 #include "socket.hpp"
 #include "end_point.hpp"
-#include "attributes.hpp"
+#include "my_std_export.hpp"
 
 namespace my_std
 {
-    class SHARED_EXPORT tcp_client_socket : public socket 
+    class MY_STD_EXPORT_TAG tcp_client_socket : public socket 
     {
     public:
         tcp_client_socket(socket::socket_type fd, const end_point& ep);

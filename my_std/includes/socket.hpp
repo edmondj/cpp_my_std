@@ -29,7 +29,7 @@ freely, subject to the following restrictions:
 # include <poll.h>
 #endif
 #include "end_point.hpp"
-#include "attributes.hpp"
+#include "my_std_export.hpp"
 
 namespace my_std
 {
@@ -47,7 +47,7 @@ namespace my_std
         Nval = POLLNVAL
     };
 
-    class SHARED_EXPORT socket
+    class MY_STD_EXPORT_TAG socket
     {
     public:
         static std::string get_last_error();
