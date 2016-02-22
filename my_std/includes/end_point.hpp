@@ -39,6 +39,7 @@ namespace my_std
         static const unsigned long address_none;
 
         static end_point any(unsigned short port);
+        static end_point loopback(unsigned short port);
 
         end_point();
         end_point(const struct sockaddr_in& addr);

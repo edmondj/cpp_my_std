@@ -298,7 +298,7 @@ int my_std::socket::_send(const char* str, unsigned int len, const end_point* to
 
 int my_std::socket::_send(const std::string& str, const end_point* to)
 {
-    return this->_send(str.c_str(), str.size(), to);
+    return this->_send(str.c_str(), (unsigned int)str.size(), to);
 }
 
 int my_std::socket::_send(uint32_t value, const end_point* to)
@@ -332,7 +332,7 @@ int my_std::socket::_recv(uint32_t& buf, end_point* from)
 {
     int ret = this->_recv((char*)&buf, sizeof(buf), from);
     if (ret == sizeof(buf))
-        ret = ntohl(buf);
+        buf = ntohl(buf);
     return ret;
 }
 
@@ -340,6 +340,6 @@ int my_std::socket::_recv(uint16_t& buf, end_point * from)
 {
     int ret = this->_recv((char*)&buf, sizeof(buf), from);
     if (ret == sizeof(buf))
-        ret = ntohs(buf);
+        buf = ntohs(buf);
     return ret;
 }

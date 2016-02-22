@@ -1,3 +1,4 @@
+#include "..\includes\end_point.hpp"
 /*
 Copyright (c) 2016 Julien Edmond
 
@@ -39,6 +40,11 @@ const unsigned long my_std::end_point::address_none = INADDR_NONE;
 my_std::end_point my_std::end_point::any(unsigned short port)
 {
     return my_std::end_point(my_std::end_point::address_any, port);
+}
+
+my_std::end_point my_std::end_point::loopback(unsigned short port)
+{
+    return end_point(address_loopback, port);
 }
 
 my_std::end_point::end_point()
