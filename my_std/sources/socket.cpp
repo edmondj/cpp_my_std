@@ -218,46 +218,128 @@ int my_std::socket::listen(int backlog)
     return ::listen(this->get_fd(), backlog);
 }
 
-int my_std::socket::send(const char * str, unsigned int len) 
+int my_std::socket::send(const char* str, unsigned int len)
 {
-    return ::send(this->_fd, str, len, 0);
+    return this->_send(str, len, nullptr);
 }
 
-int my_std::socket::send(const std::string & str) 
+int my_std::socket::send(const std::string& str)
 {
-    return this->send(str.c_str(), (unsigned int)str.size());
+    return this->_send(str, nullptr);
 }
 
 int my_std::socket::send(uint32_t value)
 {
-    value = htonl(value);
-    return this->send((const char*)&value, sizeof(uint32_t));
+    return this->_send(value, nullptr);
 }
 
-int my_std::socket::send(uint16_t value) 
+int my_std::socket::send(uint16_t value)
+{
+    return this->_send(value, nullptr);
+}
+
+int my_std::socket::sendto(const char* str, unsigned int len, const end_point& to)
+{
+    return this->_send(str, len, &to);
+}
+
+int my_std::socket::sendto(const std::string& str, const end_point& to)
+{
+    return this->_send(str, &to);
+}
+
+int my_std::socket::sendto(uint32_t value, const end_point& to)
+{
+    return this->_send(value, &to);
+}
+
+int my_std::socket::sendto(uint16_t value, const end_point& to)
+{
+    return this->_send(value, &to);
+}
+
+int my_std::socket::recv(char* buf, unsigned int len)
+{
+    return this->_recv(buf, len, nullptr);
+}
+
+int my_std::socket::recv(uint32_t& buf)
+{
+    return this->_recv(buf, nullptr);
+}
+
+int my_std::socket::recv(uint16_t& buf)
+{
+    return this->_recv(buf, nullptr);
+}
+
+int my_std::socket::recvfrom(char* buf, unsigned int len, end_point& from)
+{
+    return this->_recv(buf, len, &from);
+}
+
+int my_std::socket::recvfrom(uint32_t& buf, end_point& from)
+{
+    return this->_recv(buf, &from);
+}
+
+int my_std::socket::recvfrom(uint16_t& buf, end_point& from)
+{
+    return this->_recv(buf, &from);
+}
+
+int my_std::socket::_send(const char* str, unsigned int len, const end_point* to)
+{
+    if (to == nullptr)
+        return ::send(this->_fd, str, len, 0);
+    else
+        return ::sendto(this->_fd, str, len, 0, to->get_sockaddr(), to->get_len());
+}
+
+int my_std::socket::_send(const std::string& str, const end_point* to)
+{
+    return this->_send(str.c_str(), str.size(), to);
+}
+
+int my_std::socket::_send(uint32_t value, const end_point* to)
+{
+    value = htonl(value);
+    return this->_send((const char*)&value, sizeof(value), to);
+}
+
+int my_std::socket::_send(uint16_t value, const end_point* to)
 {
     value = htons(value);
-    return this->send((const char*)&value, sizeof(uint16_t));
+    return this->_send((const char*)&value, sizeof(value), to);;
 }
 
-int my_std::socket::recv(char * buf, unsigned int len) 
+int my_std::socket::_recv(char* buf, unsigned int len, end_point* from)
 {
-    return ::recv(this->_fd, buf, len, 0);
+    if (from == nullptr)
+        return ::recv(this->_fd, buf, len, 0);
+    else
+    {
+        struct sockaddr_in remaddr;
+        socklen_t addrlen = sizeof(remaddr);
+        int ret = ::recvfrom(this->_fd, buf, len, 0, (sockaddr*)&remaddr, &addrlen);
+        if (ret > 0)
+            *from = end_point(remaddr);
+        return ret;
+    }
 }
 
-int my_std::socket::recv(uint32_t& buf) 
+int my_std::socket::_recv(uint32_t& buf, end_point* from)
 {
-    int ret = this->recv((char*)&buf, sizeof(uint32_t));
-    if (ret == sizeof(uint32_t))
-        buf = ntohl(buf);
+    int ret = this->_recv((char*)&buf, sizeof(buf), from);
+    if (ret == sizeof(buf))
+        ret = ntohl(buf);
     return ret;
 }
 
-int my_std::socket::recv(uint16_t& buf) 
+int my_std::socket::_recv(uint16_t& buf, end_point * from)
 {
-    int ret = this->recv((char*)&buf, sizeof(uint16_t));
-    if (ret == sizeof(uint16_t))
-        buf = ntohs(buf);
+    int ret = this->_recv((char*)&buf, sizeof(buf), from);
+    if (ret == sizeof(buf))
+        ret = ntohs(buf);
     return ret;
 }
-

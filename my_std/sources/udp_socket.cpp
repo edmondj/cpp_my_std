@@ -25,28 +25,3 @@ my_std::udp_socket::udp_socket()
 
 my_std::udp_socket::~udp_socket()
 {}
-
-int my_std::udp_socket::sendto(const char* data, unsigned int length, const my_std::end_point& endpoint)
-{
-    return ::sendto(this->get_fd(), data, length, 0, endpoint.get_sockaddr(), endpoint.get_len());
-}
-
-int my_std::udp_socket::sendto(const std::string& data, const my_std::end_point& endpoint)
-{
-    return this->sendto(data.c_str(), (unsigned int)data.size(), endpoint);
-}
-
-int my_std::udp_socket::recvfrom(char* buf, unsigned int bufsize, my_std::end_point& endpoint)
-{
-    struct sockaddr_in remaddr;
-    socklen_t addrlen = sizeof(remaddr);
-    int sent = ::recvfrom(this->get_fd(), buf, bufsize, 0, (struct sockaddr*)&remaddr, &addrlen);
-    if (sent >= 0)
-        endpoint = end_point(remaddr);
-    return sent;
-}
-
-int my_std::udp_socket::recvfrom(char* buf, unsigned int bufsize)
-{
-    return ::recvfrom(this->get_fd(), buf, bufsize, 0, nullptr, nullptr);
-}

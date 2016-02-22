@@ -36,10 +36,7 @@ namespace my_std
 
         using socket::bind;
         using socket::listen;
-
-        int sendto(const char* data, unsigned int length, const end_point& endpoint);
-        int sendto(const std::string& data, const end_point& endpoint);
-        int recvfrom(char* buf, unsigned int bufsize, end_point& endpoint);
-        int recvfrom(char* buf, unsigned int bufsize);
+        using socket::sendto;
+        using socket::recvfrom;
     };
 }

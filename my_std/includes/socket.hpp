@@ -95,12 +95,27 @@ namespace my_std
         int send(const std::string& str);
         int send(uint32_t value);
         int send(uint16_t value);
+        int sendto(const char* str, unsigned int len, const end_point& to);
+        int sendto(const std::string& str, const end_point& to);
+        int sendto(uint32_t value, const end_point& to);
+        int sendto(uint16_t value, const end_point& to);
 
         int recv(char* buf, unsigned int len);
         int recv(uint32_t& buf);
         int recv(uint16_t& buf);
+        int recvfrom(char* buf, unsigned int len, end_point& from);
+        int recvfrom(uint32_t& buf, end_point& from);
+        int recvfrom(uint16_t& buf, end_point& from);
 
     private:
+        int _send(const char* str, unsigned int len, const end_point* to);
+        int _send(const std::string& str, const end_point* to);
+        int _send(uint32_t value, const end_point* to);
+        int _send(uint16_t value, const end_point* to);
+
+        int _recv(char* buf, unsigned int len, end_point* from);
+        int _recv(uint32_t& buf, end_point* from);
+        int _recv(uint16_t& buf, end_point* from);
 
         socket_type _fd;
 
