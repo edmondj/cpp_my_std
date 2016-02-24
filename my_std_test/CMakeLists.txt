@@ -4,9 +4,9 @@ endif (CMAKE_COMPILER_IS_GNUCXX)
 
 SET (SOURCE_FILES
 	sources/network_test.cpp
-	sources/event_test.cpp
 	sources/end_point_test.cpp
 	sources/unit_test_test.cpp
+	sources/read_write_mutex_test.cpp
 	sources/main.cpp
 )
 

@@ -26,6 +26,7 @@ SET (SOURCE_FILES
 	includes/xml_serializer.hpp
 	includes/my_std_export.hpp
 	includes/network.hpp
+	includes/read_write_mutex.hpp
 	sources/end_point.cpp
 	sources/file_system.cpp
 	sources/id_provider.cpp
@@ -37,6 +38,7 @@ SET (SOURCE_FILES
 	sources/udp_socket.cpp
 	sources/win32_network.cpp
 	sources/xml_serializer.cpp
+	sources/read_write_mutex.cpp
 )
 
 add_library(my_std SHARED ${SOURCE_FILES})
