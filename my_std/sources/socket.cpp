@@ -83,6 +83,8 @@ my_std::socket& my_std::socket::operator=(socket&& other)
 
 int my_std::socket::close() 
 {
+    if (this->_fd == invalid_socket)
+        return 0;
 #if _WIN32
     return ::closesocket(this->_fd);
 #else
