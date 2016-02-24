@@ -159,36 +159,6 @@ int my_std::socket::set_sock_opt(int level, int optname, const void * optval, so
     return setsockopt(this->_fd, level, optname, (char*)optval, optlen);
 }
 
-#ifdef _WIN32
-
-int my_std::socket::poll(poll_mode& events, int timeout)
-{
-    WSAPOLLFD fd;
-
-    fd.events = (short)events;
-    fd.fd = this->get_fd();
-    fd.revents = 0;
-    int ret = WSAPoll(&fd, 1, timeout);
-    events = (poll_mode)fd.revents;
-    return ret;
-}
-
-#else
-
-int my_std::socket::poll(poll_mode& events, int timeout)
-{
-    struct pollfd fd;
-
-    fd.events = (short)events;
-    fd.fd = this->get_fd();
-    fd.revents = 0;
-    int ret = ::poll(&fd, 1, timeout);
-    events = (poll_mode)fd.revents;
-    return ret;
-}
-
-#endif
-
 my_std::socket::socket(my_std::socket::socket_type fd)
     : _fd(fd) 
 {

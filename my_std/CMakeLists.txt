@@ -19,12 +19,13 @@ SET (SOURCE_FILES
 	includes/tcp_socket.hpp
 	includes/thread_pool.hpp
 	includes/tinyxml2.hpp
-	includes/type_traits.hpp
+	includes/my_type_traits.hpp
 	includes/udp_socket.hpp
 	includes/utils.hpp
 	includes/win32_network.hpp
 	includes/xml_serializer.hpp
 	includes/my_std_export.hpp
+	includes/network.hpp
 	sources/end_point.cpp
 	sources/file_system.cpp
 	sources/id_provider.cpp

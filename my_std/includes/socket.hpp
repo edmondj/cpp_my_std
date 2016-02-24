@@ -70,8 +70,6 @@ namespace my_std
         int get_sock_opt(int level, int optname, void* optval, socklen_t* optlen) const;
         int set_sock_opt(int level, int optname, const void* optval, socklen_t optlen);
 
-        int poll(poll_mode& events, int timeout = -1);
-
     protected:
 #if _WIN32
         typedef SOCKET socket_type;

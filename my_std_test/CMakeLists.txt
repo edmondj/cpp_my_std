@@ -3,7 +3,8 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 endif (CMAKE_COMPILER_IS_GNUCXX)
 
 SET (SOURCE_FILES
-#	includes/catch.hpp
+	sources/network_test.cpp
+	sources/event_test.cpp
 	sources/end_point_test.cpp
 	sources/unit_test_test.cpp
 	sources/main.cpp
