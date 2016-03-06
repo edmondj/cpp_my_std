@@ -7,6 +7,7 @@ SET (SOURCE_FILES
 	sources/end_point_test.cpp
 	sources/unit_test_test.cpp
 	sources/read_write_mutex_test.cpp
+	sources/cross_thread_queue_test.cpp
 	sources/main.cpp
 )
 

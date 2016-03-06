@@ -27,6 +27,7 @@ SET (SOURCE_FILES
 	includes/my_std_export.hpp
 	includes/network.hpp
 	includes/read_write_mutex.hpp
+	includes/cross_thread_queue.hpp
 	sources/end_point.cpp
 	sources/file_system.cpp
 	sources/id_provider.cpp
