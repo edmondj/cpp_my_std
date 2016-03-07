@@ -19,156 +19,168 @@ freely, subject to the following restrictions:
 */
 #pragma once
 
-#include <mutex>
-#include <condition_variable>
-#include <thread>
-#include <functional>
-#include <queue>
 #include <atomic>
+#include <future>
+#include <mutex>
+#include <thread>
 #include <vector>
+#include <type_traits>
+#include "cross_thread_queue.hpp"
 
 namespace my_std
 {
-    template<typename TRet, typename... TArgs>
+    template<typename TRet>
     class thread_pool
     {
+    private:
+        typedef std::packaged_task<TRet()> task;
+        typedef cross_thread_queue<task> task_queue;
+        typedef std::vector<std::thread> thread_array;
+
     public:
-        thread_pool(unsigned int nbThread = 0)
-            : _stop(false), _pause(false), _idleCount(0), _threads(0)
+        typedef typename thread_array::size_type thread_size_type;
+        typedef typename task_queue::size_type queue_size_type;
+        typedef typename TRet result_type;
+
+        thread_pool(thread_size_type nb_thread)
+            : _ths(nb_thread), _pause(false), _idle_count(nb_thread)
         {
-            this->set_nb_thread(nbThread);
+            for (size_type i = 0; i < nb_thread; i++)
+            {
+                _ths[i] = std::thread(&thread_pool::_thread_loop, this);
+            }
+        }
+
+        thread_pool(thread_size_type nb_thread, queue_size_type max_size)
+            : thread_pool(nb_thread)
+        {
+            this->_queue.set_max_size(max_size);
         }
 
         ~thread_pool()
         {
-            this->stop_threads();
+            this->cancel_all(); // clear queue
+            this->resume(); // unpause thread
+            this->_queue.dispose(); // every thread should be blocked at pop() or working
+            for (std::thread& th : this->_ths) // wait for all threads to stop
+            {
+                th.join();
+            }
         }
 
-        void set_nb_thread(unsigned int nbThread)
+        void set_task_queue_max_size(queue_size_type max_size)
         {
-            this->stop_threads();
-            this->_threads.resize(nbThread);
-            for (std::thread& th : this->_threads)
-                th = std::thread(&thread_pool::threadLoop, this);
+            this->_queue.set_max_size(max_size);
         }
 
-        void get_nb_thread() const
+        void unset_task_queue_max_size()
         {
-            return this->_threads.size();
+            this->_queue.unset_max_size();
         }
 
-        void on_done(const std::function<void(TRet)>& handler)
+        template<typename TFunc, typename... TArgs>
+        std::future<result_type> add_task(TFunc&& func, TArgs&&... args)
         {
-            this->_doneHandler = handler;
+            static_assert(std::is_function<TFunc>, "func must be a function type.");
+            static_assert(std::is_same<TRet, decltype(func(args...)>, "The call to func with args must return the type equivalent to the thread pool result type.");
+
+            task t(std::bind(std::move(func), std::forward(args...)));
+            std::future<result_type> sent = t.get_future();
+
+            this->_queue.push(std::move(t));
+            return sent;
         }
 
-        void on_except(const std::function<void(const std::exception&)>& handler)
-        {
-            this->_exceptHandler = handler;
-        }
-
-        void add_task(const std::function<TRet(TArgs...)>& f, TArgs... args)
-        {
-            std::unique_lock<std::mutex> lock(this->_tasksLock);
-
-            this->_tasks.push(std::bind(f, args...));
-            this->_newTask.notify_all();
-        }
-
+        // known issue: might return if a task was pushed between wait_empty and idle check.
         void wait_all()
         {
-            std::unique_lock<std::mutex> lock(this->_tasksLock);
+            this->_queue.wait_empty(); // wait for no tasks left
 
-            while (!this->_stop && this->_idleCount < (int)this->_threads.size())
-                this->_idleThread.wait(lock);
+            // wait for all threads to finish their works
+            {
+                std::unique_lock<std::mutex> lock(this->_idle_lock);
+
+                while (this->_idle_count != this->_ths.size())
+                    this->_idle_condvar.wait(lock);
+            }
+        }
+
+        template<class Clock, class Duration>
+        std::cv_status wait_all_until(const std::chrono::time_point<Clock, Duration>& timeout_time)
+        {
+            std::cv_status sent = this->_queue.wait_empty_until(timeout_time);
+
+            std::unique_lock<std::mutex> lock(this->_idle_lock);
+
+            while (sent == std::cv_status::no_timeout && this->_idle_count != this->_ths.size())
+                sent = this->_idle_condvar.wait_until(timeout_time);
+            return sent;
+        }
+
+        template<typename Rep, typename Period>
+        std::cv_status wait_all_for(const std::chrono::duration<Rep, Period>& rel_time)
+        {
+            return this->_queue.wait_empty_until(std::chrono::steady_clock::now() + rel_time);
         }
 
         void cancel_all()
         {
-            std::unique_lock<std::mutex> lock(this->_tasksLock);
-            this->_tasks = std::queue<std::function<TRet()>>();
+            this->_queue.clear();
         }
 
         void pause()
         {
+            std::unique_lock<std::mutex> lock(this->_pause_lock);
+
             this->_pause = true;
         }
 
         void resume()
         {
+            std::unique_lock<std::mutex> lock(this->_pause_lock);
+
             this->_pause = false;
-            this->_resumeThreads.notify_all();
+            this->_pause_condvar.notify_all();
         }
 
     private:
-        std::function<TRet()> extractTask()
+        void _thread_loop()
         {
-            std::unique_lock<std::mutex> lock(this->_tasksLock);
-            std::function<TRet()> sent;
-
-            while (!this->_stop && this->_pause)
-                this->_resumeThreads.wait(lock);
-            while (!this->_stop && this->_tasks.empty())
+            task t;
+            while (this->_queue.pop(t)) // gets a new task, return false when thread_pool is destroyed.
             {
-                this->_idleThread.notify_all();
-                ++this->_idleCount;
-                this->_newTask.wait(lock);
-                --this->_idleCount;
-            }
-            if (!this->_tasks.empty())
-            {
-                sent = this->_tasks.front();
-                this->_tasks.pop();
-            }
-            return move(sent);
-        }
-
-        void threadLoop()
-        {
-            std::function<TRet()> task;
-            do
-            {
-                task = move(this->extractTask());
-                if (task)
+                // check pause
                 {
-                    try
-                    {
-                        TRet ret(task());
-                        if (this->_doneHandler)
-                            this->_doneHandler(ret);
-                    }
-                    catch (std::exception& except)
-                    {
-                        if (this->_exceptHandler)
-                            this->_exceptHandler(except);
-                    }
+                    std::unique_lock<std::mutex> lock(this->_pause_lock);
+
+                    while (this->_pause)
+                        this->_pause_condvar.wait(lock);
                 }
-            } while (!this->_stop && task);
+                // mark thread as working
+                {
+                    std::unique_lock<std::mutex> lock(this->_idle_lock);
+                    --this->_idle_count;
+                }
+                t(); // do work
+                // mark thread as idling
+                {
+                    std::unique_lock<std::mutex> lock(this->_idle_lock);
+                    ++this->_idle_count;
+                    this->_idle_condvar.notify_all();
+                }
+            }
         }
 
-        void stop_threads()
-        {
-            this->_stop = true;
-            this->_newTask.notify_all();
-            this->_idleThread.notify_all();
-            this->_resumeThreads.notify_all();
-            for (std::thread& th : this->_threads)
-                th.join();
-            this->_threads.clear();
-            this->_stop = false;
-        }
+        cross_thread_queue<TFunc> _queue;
+        std::vector<std::thread> _ths;
 
-        std::atomic<bool> _stop;
-        std::atomic<bool> _pause;
-        std::atomic<int> _idleCount;
-        std::vector<std::thread> _threads;
-        std::queue<std::function<TRet()>> _tasks;
-        std::mutex _tasksLock;
-        std::condition_variable _newTask;
-        std::condition_variable _idleThread;
-        std::condition_variable _resumeThreads;
-        std::function<void(TRet)> _doneHandler;
-        std::function<void(const std::exception& except)> _exceptHandler;
+        std::mutex _pause_lock;
+        bool _pause;
+        std::condition_variable _pause_condvar;
+
+        std::mutex _idle_lock;
+        thread_size_type _idle_count;
+        std::condition_variable _idle_condvar;
 
         thread_pool(const thread_pool&) = delete;
         thread_pool& operator=(const thread_pool&) = delete;
