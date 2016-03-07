@@ -40,12 +40,12 @@ namespace my_std
     public:
         typedef typename thread_array::size_type thread_size_type;
         typedef typename task_queue::size_type queue_size_type;
-        typedef typename TRet result_type;
+        typedef TRet result_type;
 
         thread_pool(thread_size_type nb_thread)
             : _ths(nb_thread), _pause(false), _idle_count(nb_thread)
         {
-            for (size_type i = 0; i < nb_thread; i++)
+            for (thread_size_type i = 0; i < nb_thread; i++)
             {
                 _ths[i] = std::thread(&thread_pool::_thread_loop, this);
             }
@@ -81,10 +81,9 @@ namespace my_std
         template<typename TFunc, typename... TArgs>
         std::future<result_type> add_task(TFunc&& func, TArgs&&... args)
         {
-            static_assert(std::is_function<TFunc>, "func must be a function type.");
-            static_assert(std::is_same<TRet, decltype(func(args...)>, "The call to func with args must return the type equivalent to the thread pool result type.");
+            static_assert(std::is_convertible<decltype(std::bind(std::move(func), args...)), std::function<TRet()>>::value, "Add taks must provide a function and all its argument");
 
-            task t(std::bind(std::move(func), std::forward(args...)));
+            task t(std::bind(std::move(func), args...));
             std::future<result_type> sent = t.get_future();
 
             this->_queue.push(std::move(t));
@@ -171,8 +170,8 @@ namespace my_std
             }
         }
 
-        cross_thread_queue<TFunc> _queue;
-        std::vector<std::thread> _ths;
+        task_queue _queue;
+        thread_array _ths;
 
         std::mutex _pause_lock;
         bool _pause;

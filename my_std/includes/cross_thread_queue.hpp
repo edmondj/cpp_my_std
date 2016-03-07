@@ -10,11 +10,11 @@ including commercial applications, and to alter it and redistribute it
 freely, subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not
-   claim that you wrote the original software. If you use this software
-   in a product, an acknowledgement in the product documentation would be
-   appreciated but is not required.
+claim that you wrote the original software. If you use this software
+in a product, an acknowledgement in the product documentation would be
+appreciated but is not required.
 2. Altered source versions must be plainly marked as such, and must not be
-   misrepresented as being the original software.
+misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
 #pragma once
@@ -57,19 +57,20 @@ namespace my_std
         };
 
     public:
-        typedef typename std::queue<T>::size_type size_type;
         typedef typename std::queue<T>::value_type value_type;
         typedef typename std::queue<T>::size_type size_type;
         typedef typename std::queue<T>::reference reference;
         typedef typename std::queue<T>::const_reference const_reference;
 
         cross_thread_queue()
-            : _disposed(false), _sized(false), _max_size(0)
+            : _disposed(false), _sized(false), _max_size(0), _in_count(0)
         { }
 
         cross_thread_queue(size_type max_size)
-            : _disposed(false), _sized(true), _max_size(max_size)
-        { }
+            : cross_thread_queue()
+        {
+            this->set_max_size(max_size);
+        }
 
         ~cross_thread_queue()
         {
@@ -79,11 +80,14 @@ namespace my_std
         // once disposed, every pop will return false and all other action will throw.
         void dispose()
         {
-            std::unique_lock<std::mutex> lock(this->_queue_lock);
+            // 
+            {
+                std::unique_lock<std::mutex> lock(this->_queue_lock);
 
-            this->_disposed = true;
-            this->_new_element.notify_all();
-            this->_element_popped.notify_all();
+                this->_disposed = true;
+                this->_new_element.notify_all();
+                this->_element_popped.notify_all();
+            }
 
             // wait for every thread to step out of the queue
             {
@@ -211,6 +215,7 @@ namespace my_std
                 this->_element_popped.wait(lock);
             this->_assert_dispose();
             this->_queue.push(std::move(value));
+            this->_new_element.notify_one();
         }
 
         template<class Clock, class Duration>
@@ -224,7 +229,10 @@ namespace my_std
                 sent = this->_element_popped.wait_until(lock, timeout_time);
             this->_assert_dispose();
             if (sent == std::cv_status::no_timeout)
+            {
                 this->_queue.push(std::move(value));
+                this->_new_element.notify_one();
+            }
             return sent;
         }
 
@@ -243,8 +251,9 @@ namespace my_std
                 this->_new_element.wait(lock);
             if (this->_disposed || this->_queue.empty())
                 return false;
-            output = this->_queue.front();
+            output = std::move(this->_queue.front());
             this->_queue.pop();
+            this->_element_popped.notify_one();
             return true;
         }
 
@@ -258,8 +267,9 @@ namespace my_std
                 this->_new_element.wait_until(lock, timeout_time);
             if (this->_disposed || this->_queue.empty())
                 return false;
-            output = this->_queue.front();
+            output = std::move(this->_queue.front());
             this->_queue.pop();
+            this->_element_popped.notify_one();
             return true;
         }
 
