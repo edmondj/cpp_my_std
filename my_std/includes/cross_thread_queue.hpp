@@ -123,7 +123,7 @@ namespace my_std
             std::unique_lock<std::mutex> lock(this->_queue_lock);
 
             while (!this->_disposed && !this->_queue.empty())
-                this->_element_popped.wait();
+                this->_element_popped.wait(lock);
             this->_assert_dispose();
         }
 
@@ -135,7 +135,7 @@ namespace my_std
             std::cv_status sent = std::cv_status::no_timeout;
 
             if (!this->_disposed && !this->_queue.empty())
-                sent = this->_element_popped.wait_until(timeout_time);
+                sent = this->_element_popped.wait_until(lock, timeout_time);
             this->_assert_dispose();
             return sent;
         }

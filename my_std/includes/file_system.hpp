@@ -27,6 +27,7 @@ namespace my_std
     namespace fs
     {
         MY_STD_EXPORT_TAG bool file_exists(const std::string& path);
+        MY_STD_EXPORT_TAG bool get_file_size(const std::string& path, size_t& size);
         MY_STD_EXPORT_TAG std::string get_self_file_name();
         MY_STD_EXPORT_TAG std::string get_file_name(const std::string& path);
         MY_STD_EXPORT_TAG std::string get_file_name_without_extension(const std::string& path);

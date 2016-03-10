@@ -83,6 +83,15 @@ bool my_std::fs::file_exists(const string& path)
     return stat(path.c_str(), &buffer) == 0;
 }
 
+bool my_std::fs::get_file_size(const std::string& path, size_t& size)
+{
+    struct stat buffer;
+    if (stat(path.c_str(), &buffer) != 0)
+        return false;
+    size = buffer.st_size;
+    return true;
+}
+
 static bool is_file_separator(char c)
 {
     return c == '/' || c == '\\';
