@@ -51,14 +51,14 @@ freely, subject to the following restrictions:
 
 using namespace std;
 
-const unsigned long my_std::end_point::address_any = INADDR_ANY;
-const unsigned long my_std::end_point::address_loopback = INADDR_LOOPBACK;
-const unsigned long my_std::end_point::address_broadcast = INADDR_BROADCAST;
-const unsigned long my_std::end_point::address_none = INADDR_NONE;
+static const unsigned long address_any = INADDR_ANY;
+static const unsigned long address_loopback = INADDR_LOOPBACK;
+static const unsigned long address_broadcast = INADDR_BROADCAST;
+static const unsigned long address_none = INADDR_NONE;
 
 my_std::end_point my_std::end_point::any(unsigned short port)
 {
-    return my_std::end_point(my_std::end_point::address_any, port);
+    return my_std::end_point(address_any, port);
 }
 
 my_std::end_point my_std::end_point::loopback(unsigned short port)

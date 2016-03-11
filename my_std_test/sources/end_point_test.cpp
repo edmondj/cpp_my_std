@@ -10,7 +10,7 @@ TEST_CASE("Testing end point", "[end_point]")
     {
         end_point a = end_point::any(12345);
 
-        REQUIRE(a.get_addr() == end_point::address_any);
+        REQUIRE(a.get_addr() == INADDR_ANY);
         REQUIRE(a.get_port() == 12345);
     }
 }

@@ -33,11 +33,6 @@ namespace my_std
     class MY_STD_EXPORT_TAG end_point
     {
     public:
-        static const unsigned long address_any;
-        static const unsigned long address_loopback;
-        static const unsigned long address_broadcast;
-        static const unsigned long address_none;
-
         static end_point any(unsigned short port);
         static end_point loopback(unsigned short port);
 

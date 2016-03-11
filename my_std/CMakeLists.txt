@@ -28,6 +28,7 @@ SET (SOURCE_FILES
 	includes/network.hpp
 	includes/read_write_mutex.hpp
 	includes/cross_thread_queue.hpp
+	includes/circular_buffer.hpp
 	sources/end_point.cpp
 	sources/file_system.cpp
 	sources/id_provider.cpp

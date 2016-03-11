@@ -8,6 +8,7 @@ SET (SOURCE_FILES
 	sources/unit_test_test.cpp
 	sources/read_write_mutex_test.cpp
 	sources/cross_thread_queue_test.cpp
+	sources/circular_buffer_test.cpp
 	sources/main.cpp
 )
 
