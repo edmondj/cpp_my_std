@@ -87,6 +87,7 @@ namespace my_std
                 this->_disposed = true;
                 this->_new_element.notify_all();
                 this->_element_popped.notify_all();
+                this->_empty.notify_all();
             }
 
             // wait for every thread to step out of the queue
@@ -115,6 +116,7 @@ namespace my_std
 
             std::queue<T>().swap(this->_queue);
             this->_element_popped.notify_all();
+            this->_empty.notify_all();
         }
 
         void wait_empty()
@@ -123,7 +125,7 @@ namespace my_std
             std::unique_lock<std::mutex> lock(this->_queue_lock);
 
             while (!this->_disposed && !this->_queue.empty())
-                this->_element_popped.wait(lock);
+                this->_empty.wait(lock);
             this->_assert_dispose();
         }
 
@@ -135,7 +137,7 @@ namespace my_std
             std::cv_status sent = std::cv_status::no_timeout;
 
             if (!this->_disposed && !this->_queue.empty())
-                sent = this->_element_popped.wait_until(lock, timeout_time);
+                sent = this->_empty.wait_until(lock, timeout_time);
             this->_assert_dispose();
             return sent;
         }
@@ -183,6 +185,7 @@ namespace my_std
                 this->_element_popped.wait(lock);
             this->_assert_dispose();
             this->_queue.push(value);
+            this->_new_element.notify_all();
         }
 
         template<class Clock, class Duration>
@@ -196,7 +199,10 @@ namespace my_std
                 sent = this->_element_popped.wait_until(lock, timeout_time);
             this->_assert_dispose();
             if (sent == std::cv_status::no_timeout)
+            {
                 this->_queue.push(value);
+                this->_new_element.notify_all();
+            }
             return sent;
         }
 
@@ -254,6 +260,8 @@ namespace my_std
             output = std::move(this->_queue.front());
             this->_queue.pop();
             this->_element_popped.notify_one();
+            if (this->_queue.empty())
+                this->_empty.notify_all();
             return true;
         }
 
@@ -270,6 +278,8 @@ namespace my_std
             output = std::move(this->_queue.front());
             this->_queue.pop();
             this->_element_popped.notify_one();
+            if (this->_queue.empty())
+                this->_empty.notify_all();
             return true;
         }
 
@@ -277,6 +287,28 @@ namespace my_std
         bool try_pop_for(value_type& output, const std::chrono::duration<Rep, Period>& rel_time)
         {
             return this->try_pop_until(output, std::chrono::steady_clock::now() + rel_time);
+        }
+
+        bool try_front(T& out)
+        {
+            _step_in s(this);
+            std::unique_lock<std::mutex> lock(this->_queue_lock);
+
+            if (this->_queue.empty())
+                return false;
+            out = this->_queue.front();
+            return true;
+        }
+
+        bool try_back(T& out)
+        {
+            _step_in s(this);
+            std::unique_lock<std::mutex> lock(this->_queue_lock);
+
+            if (this->_queue.empty())
+                return false;
+            out = this->_queue.back();
+            return true;
         }
 
     private:
@@ -291,6 +323,7 @@ namespace my_std
         std::mutex _queue_lock;
         std::condition_variable _new_element;
         std::condition_variable _element_popped;
+        std::condition_variable _empty;
         bool _disposed;
         bool _sized;
         size_type _max_size;
