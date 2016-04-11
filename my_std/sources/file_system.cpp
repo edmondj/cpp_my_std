@@ -106,6 +106,16 @@ string my_std::fs::get_file_name(const string& path)
     return path.substr(i);
 }
 
+std::string my_std::fs::get_file_extension(const std::string& path)
+{
+    string fn = get_file_name(path);
+    size_t offset = fn.find_last_of('.');
+
+    if (offset == string::npos)
+        return "";
+    return fn.substr(offset + 1);
+}
+
 string my_std::fs::get_file_name_without_extension(const string& path)
 {
     string sent = my_std::fs::get_file_name(path);

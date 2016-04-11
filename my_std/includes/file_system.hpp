@@ -30,6 +30,7 @@ namespace my_std
         MY_STD_EXPORT_TAG bool get_file_size(const std::string& path, size_t& size);
         MY_STD_EXPORT_TAG std::string get_self_file_name();
         MY_STD_EXPORT_TAG std::string get_file_name(const std::string& path);
+        MY_STD_EXPORT_TAG std::string get_file_extension(const std::string& path);
         MY_STD_EXPORT_TAG std::string get_file_name_without_extension(const std::string& path);
         MY_STD_EXPORT_TAG std::string get_directory_name(const std::string& path);
         MY_STD_EXPORT_TAG std::string combine(const std::string& left, const std::string& right);
