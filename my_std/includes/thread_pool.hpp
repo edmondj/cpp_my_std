@@ -10,11 +10,11 @@ including commercial applications, and to alter it and redistribute it
 freely, subject to the following restrictions:
 
 1. The origin of this software must not be misrepresented; you must not
-   claim that you wrote the original software. If you use this software
-   in a product, an acknowledgement in the product documentation would be
-   appreciated but is not required.
+claim that you wrote the original software. If you use this software
+in a product, an acknowledgement in the product documentation would be
+appreciated but is not required.
 2. Altered source versions must be plainly marked as such, and must not be
-   misrepresented as being the original software.
+misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
 #pragma once
@@ -68,6 +68,11 @@ namespace my_std
             }
         }
 
+        thread_size_type nb_thread() const
+        {
+            return this->_ths.size();
+        }
+
         void set_task_queue_max_size(queue_size_type max_size)
         {
             this->_queue.set_max_size(max_size);
@@ -95,7 +100,7 @@ namespace my_std
         {
             this->_queue.wait_empty(); // wait for no tasks left
 
-            // wait for all threads to finish their works
+                                       // wait for all threads to finish their works
             {
                 std::unique_lock<std::mutex> lock(this->_idle_lock);
 
@@ -161,7 +166,7 @@ namespace my_std
                     --this->_idle_count;
                 }
                 t(); // do work
-                // mark thread as idling
+                     // mark thread as idling
                 {
                     std::unique_lock<std::mutex> lock(this->_idle_lock);
                     ++this->_idle_count;
