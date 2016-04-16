@@ -1,12 +1,9 @@
-if (CMAKE_COMPILER_IS_GNUCXX)
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -pthread")
-endif (CMAKE_COMPILER_IS_GNUCXX)
-
 if (WIN32)
 	add_definitions("-DTINYXML2_EXPORT")
 endif (WIN32)
 
 SET (SOURCE_FILES
+	includes/attributes.hpp
 	includes/my_std_export.hpp
 	includes/end_point.hpp
 	includes/event_waiter.hpp
@@ -29,6 +26,10 @@ SET (SOURCE_FILES
 	includes/read_write_mutex.hpp
 	includes/cross_thread_queue.hpp
 	includes/circular_buffer.hpp
+	includes/dynamic_library.hpp
+	includes/win32_dynamic_library.hpp
+	includes/posix_dynamic_library.hpp
+	includes/win32_helper.hpp
 	sources/end_point.cpp
 	sources/file_system.cpp
 	sources/id_provider.cpp
@@ -41,6 +42,10 @@ SET (SOURCE_FILES
 	sources/win32_network.cpp
 	sources/xml_serializer.cpp
 	sources/read_write_mutex.cpp
+	sources/dynamic_library.cpp
+	sources/win32_dynamic_library.cpp
+	sources/posix_dynamic_library.cpp
+	sources/win32_helper.cpp
 )
 
 add_library(my_std SHARED ${SOURCE_FILES})

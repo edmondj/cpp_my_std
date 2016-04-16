@@ -14,8 +14,3 @@ TEST_CASE("Count to 10", "[unit_test]")
     }
     REQUIRE(i == 10);
 }
-
-TEST_CASE("Throw", "[unit_test]")
-{
-    REQUIRE_THROWS(throw std::exception());
-}

@@ -67,7 +67,7 @@ std::string Socket::get_last_error()
 my_std::socket::socket(socket&& other)
     : _fd(other._fd)
 {
-    other._fd = -1;
+    other._fd = socket::invalid_socket;
 }
 
 my_std::socket& my_std::socket::operator=(socket&& other)
@@ -76,7 +76,7 @@ my_std::socket& my_std::socket::operator=(socket&& other)
     {
         this->close();
         this->_fd = other._fd;
-        other._fd = -1;
+        other._fd = socket::invalid_socket;
     }
     return *this;
 }
