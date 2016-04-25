@@ -77,6 +77,15 @@ bool my_std::fs::set_cwd(const string& path)
 
 #endif
 
+bool my_std::fs::is_directory(const std::string & path)
+{
+    struct stat buffer;
+
+    if (stat(path.c_str(), &buffer) != 0)
+        return false;
+    return (S_IFDIR & buffer.st_mode) != 0;
+}
+
 bool my_std::fs::file_exists(const string& path)
 {
     struct stat buffer;

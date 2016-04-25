@@ -12,4 +12,10 @@ TEST_CASE("Testing file system", "[file_system]")
         REQUIRE(fs::get_file_extension("/usr/tmp.d/toto") == "");
         REQUIRE(fs::get_file_extension("/usr/tmp.d/toto.xml") == "xml");
     }
+
+    SECTION("Is directory")
+    {
+        REQUIRE(fs::is_directory("./"));
+        REQUIRE(!fs::is_directory(""));
+    }
 }
