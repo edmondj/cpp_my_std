@@ -19,13 +19,18 @@ freely, subject to the following restrictions:
 */
 #pragma once
 
-#include "socket.hpp"
-#include "end_point.hpp"
-#include "my_std_export.hpp"
+#ifdef _WIN32
+# include "socket.hpp"
+# include "end_point.hpp"
+# include "my_std_export.hpp"
+#else
+# include <sys/types.h>
+# include <netinet/tcp.h>
+#endif
 
 namespace my_std
 {
-    class MY_STD_EXPORT_TAG tcp_socket : public socket
+    class MY_STD_EXPORT_TAG tcp_socket : public my_std::socket
     {
     public:
         tcp_socket();
