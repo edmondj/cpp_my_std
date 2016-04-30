@@ -17,10 +17,11 @@ freely, subject to the following restrictions:
    misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
+
 #ifndef _WIN32
-#include <string.h>
-#include "posix_dynamic_library.hpp"
-#include "file_system.hpp"
+# include <string.h>
+# include "posix_dynamic_library.hpp"
+# include "file_system.hpp"
 
 using namespace std;
 using namespace my_std;
@@ -29,10 +30,17 @@ using namespace my_std;
 
 my_std::_dl::handle my_std::_dl::load(const std::string& f)
 {
-    string filename = f;
-    string ext = fs::get_file_extension(filename);
+    string dir = fs::get_directory_name(f);
+    string filename = fs::get_file_name(f);
+    string ext = fs::get_file_extension(f);
 
-    if (ext != "so")
+    if (filename.substr(0, 3) != "lib")
+        filename = "lib" + filename;
+
+    if (!dir.empty())
+        filename = fs::combine(dir, filename);
+
+    if (ext != ".so")
         filename += ".so";
 
     return dlopen(filename.c_str(), RTLD_LAZY | RTLD_GLOBAL);
@@ -58,7 +66,7 @@ my_std::_dl::handle my_std::_dl::load(const std::string& f)
     return dlopen(filename.c_str(), RTLD_LAZY | RTLD_GLOBAL);
 }
 
-#endif
+# endif
 
 bool my_std::_dl::close(handle h)
 {
