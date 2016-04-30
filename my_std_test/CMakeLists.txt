@@ -5,6 +5,8 @@ add_subdirectory(dependecies/catch)
 include_directories(${CATCH_INCLUDE_DIR} ${COMMON_INCLUDES})
 enable_testing(true)  # Enables unit-testing.
 
+add_subdirectory(dependecies/dyn_test)
+
 if (CMAKE_COMPILER_IS_GNUCXX)
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -pthread")
 endif (CMAKE_COMPILER_IS_GNUCXX)

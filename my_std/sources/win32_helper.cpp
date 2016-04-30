@@ -1,4 +1,5 @@
-#include "..\includes\win32_helper.hpp"
+#ifdef _WIN32
+# include "win32_helper.hpp"
 
 std::string my_std::_win32::strerror(DWORD err)
 {
@@ -23,3 +24,4 @@ std::string my_std::_win32::strerror(DWORD err)
     }
     return "";
 }
+#endif

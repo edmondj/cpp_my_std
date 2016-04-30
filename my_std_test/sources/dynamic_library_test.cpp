@@ -9,7 +9,7 @@ TEST_CASE("Testing dynamic library", "[dl]")
     {
         dynamic_library dl;
 
-        bool result = dl.open("./my_std_dl_test");
+        bool result = dl.open("./dyn_test");
 
         if (result)
            INFO(dl.get_last_error());
@@ -20,7 +20,7 @@ TEST_CASE("Testing dynamic library", "[dl]")
     {
         dynamic_library dl;
 
-        bool result = dl.open("./my_std_dl_test");
+        bool result = dl.open("./dyn_test");
 
         if (result)
             INFO(dl.get_last_error());
@@ -39,7 +39,7 @@ TEST_CASE("Testing dynamic library", "[dl]")
     {
         dynamic_library dl;
 
-        bool result = dl.open("./my_std_dl_test");
+        bool result = dl.open("./dyn_test");
 
         if (result)
             INFO(dl.get_last_error());
