@@ -19,14 +19,14 @@ freely, subject to the following restrictions:
 */
 #pragma once
 
-#ifdef _WIN32
-# include "socket.hpp"
-# include "end_point.hpp"
-# include "my_std_export.hpp"
-#else
+#ifndef _WIN32
 # include <sys/types.h>
 # include <netinet/tcp.h>
 #endif
+
+#include "socket.hpp"
+#include "end_point.hpp"
+#include "my_std_export.hpp"
 
 namespace my_std
 {

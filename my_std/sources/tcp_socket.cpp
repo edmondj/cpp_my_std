@@ -17,11 +17,8 @@ freely, subject to the following restrictions:
    misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
-#ifndef _WIN32
-# include <netinet/tcp.h>
-#endif
-#include "tcp_socket.hpp"
 
+#include "tcp_socket.hpp"
 
 my_std::tcp_socket::tcp_socket()
     : socket(::socket(AF_INET, SOCK_STREAM, 0)) 

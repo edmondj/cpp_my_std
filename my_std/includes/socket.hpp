@@ -24,6 +24,7 @@ freely, subject to the following restrictions:
 #if _WIN32
 # include "win32_network.hpp"
 #else
+# include <sys/types.h>
 # include <unistd.h>
 # include <sys/socket.h>
 # include <poll.h>

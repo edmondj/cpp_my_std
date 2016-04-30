@@ -64,7 +64,7 @@ namespace my_std
     {
         static void put(TSerializer& serializer, const std::string& name, const T& data)
         {
-            static_assert(false, "Unknown serialization for current type");
+            static_assert(std::true_type::value, "Unknown serialization for current type");
         }
     };
 
@@ -113,10 +113,10 @@ namespace my_std
     template<typename TSerializer, typename T>
     void put(TSerializer& serializer, const std::string& name, const T& data)
     {
-        std::conditional<is_serializable<TSerializer, T>::value, __put_serializable<TSerializer, T>,
-            std::conditional<std::is_array<T>::value, __put_array<TSerializer, T>,
-            std::conditional<has_stream_io<T>::value, __put_io<TSerializer, T>,
-            std::conditional<is_container<T>::value, __put_container<TSerializer, T>, __put_none<TSerializer, T>>::type
+        typename std::conditional<is_serializable<TSerializer, T>::value, __put_serializable<TSerializer, T>,
+            typename std::conditional<std::is_array<T>::value, __put_array<TSerializer, T>,
+            typename std::conditional<has_stream_io<T>::value, __put_io<TSerializer, T>,
+            typename std::conditional<is_container<T>::value, __put_container<TSerializer, T>, __put_none<TSerializer, T>>::type
             >::type
             >::type
         >::type::put(serializer, name, data);
@@ -127,12 +127,13 @@ namespace my_std
     {
         static void get(TSerializer& serializer, const std::string& name, T& data)
         {
-            static_assert(false, "Unknown serialization for current type");
+            static_assert(std::true_type::value, "Unknown serialization for current type");
         }
 
         static size_t get_all(TSerializer& serializer, const std::string& name, T& data)
         {
-            static_assert(false, "Unknown serialization for current type");
+            static_assert(std::true_type::value, "Unknown serialization for current type");
+            return 0;
         }
     };
 
@@ -191,10 +192,10 @@ namespace my_std
     template<typename TSerializer, typename T>
     bool get(TSerializer& serializer, const std::string& name, T& out)
     {
-        return std::conditional<is_serializable<TSerializer, T>::value, __get_serializable<TSerializer, T>,
-            std::conditional<std::is_array<T>::value, __get_array<TSerializer, T>,
-            std::conditional<has_stream_io<T>::value, __get_io<TSerializer, T>,
-            std::conditional<is_container<T>::value, __get_container<TSerializer, T>, __get_none<TSerializer, T>>::type
+        return typename std::conditional<is_serializable<TSerializer, T>::value, __get_serializable<TSerializer, T>,
+            typename std::conditional<std::is_array<T>::value, __get_array<TSerializer, T>,
+            typename std::conditional<has_stream_io<T>::value, __get_io<TSerializer, T>,
+            typename std::conditional<is_container<T>::value, __get_container<TSerializer, T>, __get_none<TSerializer, T>>::type
             >::type
             >::type
         >::type::get(serializer, name, out);
@@ -209,8 +210,8 @@ namespace my_std
     template<typename TSerializer, typename T>
     size_t get_all(TSerializer& serializer, const std::string& name, T& out)
     {
-        return std::conditional<std::is_array<T>::value, __get_array<TSerializer, T>,
-            std::conditional<is_container<T>::value, __get_container<TSerializer, T>, __get_none<TSerializer, T>>::type
+        return typename std::conditional<std::is_array<T>::value, __get_array<TSerializer, T>,
+            typename std::conditional<is_container<T>::value, __get_container<TSerializer, T>, __get_none<TSerializer, T>>::type
         >::type::get_all(serializer, name, out);
     }
 }
