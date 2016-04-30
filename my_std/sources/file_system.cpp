@@ -17,6 +17,7 @@ freely, subject to the following restrictions:
    misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 */
+
 #include <sys/stat.h>
 #include "file_system.hpp"
 
@@ -50,14 +51,14 @@ bool my_std::fs::set_cwd(const string& path)
 
 #else
 
-#include <unistd.h>
+# include <unistd.h>
 
 using namespace std;
 
 string my_std::fs::get_self_file_name()
 {
     char buffer[260];
-    buffer[readlink("/proc/self/exe", buffer, sizeof(buffer))] = 0;
+    buffer[readlink("/proc/self/exe ", buffer, sizeof(buffer))] = 0;
     return string(buffer);
 }
 
@@ -76,6 +77,15 @@ bool my_std::fs::set_cwd(const string& path)
 }
 
 #endif
+
+bool my_std::fs::is_directory(const std::string & path)
+{
+    struct stat buffer;
+
+    if (stat(path.c_str(), &buffer) != 0)
+        return false;
+    return (S_IFDIR & buffer.st_mode) != 0;
+}
 
 bool my_std::fs::file_exists(const string& path)
 {

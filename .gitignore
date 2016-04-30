@@ -28,4 +28,4 @@
 *.app
 
 # CMake build directory
-build/
+build*/

@@ -48,7 +48,7 @@ namespace my_std
         {
             tinyxml2::XMLElement* element = this->_node->GetDocument()->NewElement(name.c_str());
 
-            element->SetAttribute("size", std::extent<T>::value);
+            element->SetAttribute("size", (unsigned int)std::extent<T>::value);
             this->_node->InsertEndChild(element);
 
             xml_node_serializer childs(element);
@@ -64,7 +64,7 @@ namespace my_std
         {
             tinyxml2::XMLElement* element = this->_node->GetDocument()->NewElement(name.c_str());
 
-            element->SetAttribute("size", size);
+            element->SetAttribute("size", (unsigned int)size);
             this->_node->InsertEndChild(element);
 
             xml_node_serializer childs(element);
@@ -119,15 +119,7 @@ namespace my_std
         }
 
         template<typename T>
-        size_t get_all_array(const std::string& name, T& data)
-        {
-            size_t sent = 0;
-            xml_iterating_serializer it(this->_node);
-
-            while (it.moveNext(name) && get(it, name, data[sent]))
-                ++sent;
-            return sent;
-        }
+        size_t get_all_array(const std::string& name, T& data);
 
         template<typename T>
         bool get_container(const std::string& name, T& data)
@@ -136,20 +128,7 @@ namespace my_std
         }
 
         template<typename T>
-        size_t get_all_container(const std::string& name, T& data)
-        {
-            size_t sent = 0;
-            xml_iterating_serializer it(this->_node);
-            auto inserter = std::back_inserter(data);
-            typename T::value_type item;
-
-            while (it.moveNext(name) && get(it, name, item))
-            {
-                data.push_back(item);
-                ++sent;
-            }
-            return sent;
-        }
+        size_t get_all_container(const std::string& name, T& data);
 
         template<typename T>
         bool get_serializable(const std::string &name, T& data)
@@ -270,4 +249,31 @@ namespace my_std
         xml_serializer(xml_serializer&&) = delete;
         xml_serializer& operator=(xml_serializer&&) = delete;
     };
+
+    template<typename T>
+    size_t xml_node_serializer::get_all_array(const std::string& name, T& data)
+    {
+        size_t sent = 0;
+        xml_iterating_serializer it(this->_node);
+
+        while (it.moveNext(name) && get(it, name, data[sent]))
+            ++sent;
+        return sent;
+    }
+
+    template<typename T>
+    size_t xml_node_serializer::get_all_container(const std::string& name, T& data)
+    {
+        size_t sent = 0;
+        xml_iterating_serializer it(this->_node);
+        auto inserter = std::back_inserter(data);
+        typename T::value_type item;
+
+        while (it.moveNext(name) && get(it, name, item))
+        {
+            data.push_back(item);
+            ++sent;
+        }
+        return sent;
+    }
 }

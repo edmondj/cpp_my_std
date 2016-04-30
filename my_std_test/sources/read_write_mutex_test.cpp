@@ -12,7 +12,7 @@ TEST_CASE("Testing read write mutex", "[thread][rwmutex]")
 
     SECTION("Basic")
     {
-        atomic<int> reading = 0;
+        atomic<int> reading(0);
 
         for (int i = 0; i < 4; i++)
         {

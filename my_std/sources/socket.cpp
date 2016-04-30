@@ -57,7 +57,7 @@ std::string my_std::socket::get_last_error()
 
 #else
 
-std::string Socket::get_last_error() 
+std::string my_std::socket::get_last_error() 
 {
     return string(strerror(errno));
 }
