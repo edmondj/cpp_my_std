@@ -36,6 +36,7 @@ SET (SOURCE_FILES
 	includes/win32_dynamic_library.hpp
 	includes/posix_dynamic_library.hpp
 	includes/win32_helper.hpp
+	includes/my_functional.hpp
 	sources/end_point.cpp
 	sources/file_system.cpp
 	sources/id_provider.cpp

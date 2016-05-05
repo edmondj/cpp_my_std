@@ -19,6 +19,7 @@ SET (SOURCE_FILES
 	sources/circular_buffer_test.cpp
 	sources/file_system_test.cpp
 	sources/dynamic_library_test.cpp
+	sources/functional_test.cpp
 	sources/main.cpp
 )
 
