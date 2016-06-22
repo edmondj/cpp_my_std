@@ -47,8 +47,10 @@ namespace my_std
 
             ~_step_in()
             {
-                std::unique_lock<std::mutex> lock(this->_queue->_in_lock);
-                --this->_queue->_in_count;
+                {
+                    std::unique_lock<std::mutex> lock(this->_queue->_in_lock);
+                    --this->_queue->_in_count;
+                }
                 this->_queue->_in_cond_var.notify_all();
             }
 
@@ -83,12 +85,12 @@ namespace my_std
             // 
             {
                 std::unique_lock<std::mutex> lock(this->_queue_lock);
-
                 this->_disposed = true;
-                this->_new_element.notify_all();
-                this->_element_popped.notify_all();
-                this->_empty.notify_all();
             }
+
+            this->_new_element.notify_all();
+            this->_element_popped.notify_all();
+            this->_empty.notify_all();
 
             // wait for every thread to step out of the queue
             {
@@ -111,10 +113,12 @@ namespace my_std
         void clear()
         {
             _step_in s(this);
-            std::unique_lock<std::mutex> lock(this->_queue_lock);
-            this->_assert_dispose();
+            {
+                std::unique_lock<std::mutex> lock(this->_queue_lock);
+                this->_assert_dispose();
 
-            std::queue<T>().swap(this->_queue);
+                std::queue<T>().swap(this->_queue);
+            }
             this->_element_popped.notify_all();
             this->_empty.notify_all();
         }
@@ -179,12 +183,14 @@ namespace my_std
         void push(const value_type& value)
         {
             _step_in s(this);
-            std::unique_lock<std::mutex> lock(this->_queue_lock);
+            {
+                std::unique_lock<std::mutex> lock(this->_queue_lock);
 
-            while (!this->_disposed && this->_sized && this->_queue.size() >= this->_max_size)
-                this->_element_popped.wait(lock);
-            this->_assert_dispose();
-            this->_queue.push(value);
+                while (!this->_disposed && this->_sized && this->_queue.size() >= this->_max_size)
+                    this->_element_popped.wait(lock);
+                this->_assert_dispose();
+                this->_queue.push(value);
+            }
             this->_new_element.notify_all();
         }
 
@@ -192,17 +198,19 @@ namespace my_std
         std::cv_status try_push_until(const value_type& value, const std::chrono::time_point<Clock, Duration>& timeout_time)
         {
             _step_in s(this);
-            std::unique_lock<std::mutex> lock(this->_queue_lock);
             std::cv_status sent = std::cv_status::no_timeout;
-
-            if (!this->_disposed && this->_sized && this->_queue.size() >= this->_max_size)
-                sent = this->_element_popped.wait_until(lock, timeout_time);
-            this->_assert_dispose();
-            if (sent == std::cv_status::no_timeout)
             {
-                this->_queue.push(value);
-                this->_new_element.notify_all();
+                std::unique_lock<std::mutex> lock(this->_queue_lock);
+
+                if (!this->_disposed && this->_sized && this->_queue.size() >= this->_max_size)
+                    sent = this->_element_popped.wait_until(lock, timeout_time);
+                this->_assert_dispose();
+                if (sent == std::cv_status::no_timeout)
+                    this->_queue.push(value);
             }
+            if (sent == std::cv_status::no_timeout)
+                this->_new_element.notify_all();
+
             return sent;
         }
 
@@ -215,12 +223,14 @@ namespace my_std
         void push(value_type&& value)
         {
             _step_in s(this);
-            std::unique_lock<std::mutex> lock(this->_queue_lock);
+            {
+                std::unique_lock<std::mutex> lock(this->_queue_lock);
 
-            while (!this->_disposed && this->_sized && this->_queue.size() >= this->_max_size)
-                this->_element_popped.wait(lock);
-            this->_assert_dispose();
-            this->_queue.push(std::move(value));
+                while (!this->_disposed && this->_sized && this->_queue.size() >= this->_max_size)
+                    this->_element_popped.wait(lock);
+                this->_assert_dispose();
+                this->_queue.push(std::move(value));
+            }
             this->_new_element.notify_one();
         }
 
@@ -228,17 +238,18 @@ namespace my_std
         std::cv_status try_push_until(value_type&& value, const std::chrono::time_point<Clock, Duration>& timeout_time)
         {
             _step_in s(this);
-            std::unique_lock<std::mutex> lock(this->_queue_lock);
             std::cv_status sent = std::cv_status::no_timeout;
-
-            if (!this->_disposed && this->_sized && this->_queue.size() >= this->_max_size)
-                sent = this->_element_popped.wait_until(lock, timeout_time);
-            this->_assert_dispose();
-            if (sent == std::cv_status::no_timeout)
+            std::unique_lock<std::mutex> lock(this->_queue_lock);
             {
-                this->_queue.push(std::move(value));
-                this->_new_element.notify_one();
+
+                if (!this->_disposed && this->_sized && this->_queue.size() >= this->_max_size)
+                    sent = this->_element_popped.wait_until(lock, timeout_time);
+                this->_assert_dispose();
+                if (sent == std::cv_status::no_timeout)
+                    this->_queue.push(std::move(value));
             }
+            if (sent == std::cv_status::no_timeout)
+                this->_new_element.notify_one();
             return sent;
         }
 
@@ -251,16 +262,18 @@ namespace my_std
         bool pop(value_type& output)
         {
             _step_in s(this);
-            std::unique_lock<std::mutex> lock(this->_queue_lock);
+            {
+                std::unique_lock<std::mutex> lock(this->_queue_lock);
 
-            while (!this->_disposed && this->_queue.empty())
-                this->_new_element.wait(lock);
-            if (this->_disposed || this->_queue.empty())
-                return false;
-            output = std::move(this->_queue.front());
-            this->_queue.pop();
+                while (!this->_disposed && this->_queue.empty())
+                    this->_new_element.wait(lock);
+                if (this->_disposed || this->_queue.empty())
+                    return false;
+                output = std::move(this->_queue.front());
+                this->_queue.pop();
+            }
             this->_element_popped.notify_one();
-            if (this->_queue.empty())
+            if (this->empty())
                 this->_empty.notify_all();
             return true;
         }
@@ -269,16 +282,18 @@ namespace my_std
         bool try_pop_until(value_type& output, const std::chrono::time_point<Clock, Duration>& timeout_time)
         {
             _step_in s(this);
-            std::unique_lock<std::mutex> lock(this->_queue_lock);
+            {
+                std::unique_lock<std::mutex> lock(this->_queue_lock);
 
-            if (!this->_disposed && this->_queue.empty())
-                this->_new_element.wait_until(lock, timeout_time);
-            if (this->_disposed || this->_queue.empty())
-                return false;
-            output = std::move(this->_queue.front());
-            this->_queue.pop();
+                if (!this->_disposed && this->_queue.empty())
+                    this->_new_element.wait_until(lock, timeout_time);
+                if (this->_disposed || this->_queue.empty())
+                    return false;
+                output = std::move(this->_queue.front());
+                this->_queue.pop();
+            }
             this->_element_popped.notify_one();
-            if (this->_queue.empty())
+            if (this->empty())
                 this->_empty.notify_all();
             return true;
         }
