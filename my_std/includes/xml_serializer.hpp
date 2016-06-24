@@ -44,23 +44,7 @@ namespace my_std
         }
 
         template<typename T>
-        void put_array(const std::string& name, const T& data)
-        {
-            tinyxml2::XMLElement* element = this->_node->GetDocument()->NewElement(name.c_str());
-
-            element->SetAttribute("size", (unsigned int)std::extent<T>::value);
-            this->_node->InsertEndChild(element);
-
-            xml_node_serializer childs(element);
-
-            for (size_t i = 0; i < std::extent<T>::value; i++)
-            {
-                put(childs, "item", data[i]);
-            }
-        }
-
-        template<typename T, size_t size>
-        void put_array(const std::string& name, const std::array<T, size>& data)
+        void put_array(const std::string& name, const T& data, size_t size)
         {
             tinyxml2::XMLElement* element = this->_node->GetDocument()->NewElement(name.c_str());
 
@@ -107,15 +91,24 @@ namespace my_std
         }
 
         template<typename T>
-        bool get_array(const std::string& name, T& data)
+        bool get_array(const std::string& name, T& data, size_t maxSize)
         {
-            return _get_array<T, std::extent<T>::value>(this->_node->FirstChildElement(name.c_str()), data);
-        }
+            tinyxml2::XMLElement* element = this->_node->FirstChildElement(name.c_str());
+            if (element != nullptr)
+            {
+                const char* attr = element->Attribute("size");
+                if (attr != nullptr)
+                {
+                    size_t size = std::stoi(attr);
 
-        template<typename T, size_t size>
-        bool get_array(const std::string& name, std::array<T, size>& data)
-        {
-            return _get_array<std::array<T, size>, size>(this->_node->FirstChildElement(name.c_str()), data);
+                    if (size == maxSize)
+                    {
+                        get_all(xml_node_serializer(element), "item", data);
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         template<typename T>
@@ -148,26 +141,6 @@ namespace my_std
                     std::istringstream iss(attr);
 
                     return !!(iss >> data);
-                }
-            }
-            return false;
-        }
-
-        template<typename T, size_t maxSize>
-        bool _get_array(tinyxml2::XMLElement* element, T& data)
-        {
-            if (element != nullptr)
-            {
-                const char* attr = element->Attribute("size");
-                if (attr != nullptr)
-                {
-                    size_t size = std::stoi(attr);
-
-                    if (size == maxSize)
-                    {
-                        get_all(xml_node_serializer(element), "item", data);
-                        return true;
-                    }
                 }
             }
             return false;

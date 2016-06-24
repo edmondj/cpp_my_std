@@ -37,6 +37,8 @@ SET (SOURCE_FILES
 	includes/posix_dynamic_library.hpp
 	includes/win32_helper.hpp
 	includes/my_functional.hpp
+	includes/json_serializer.hpp
+	includes/json.hpp
 	sources/end_point.cpp
 	sources/file_system.cpp
 	sources/id_provider.cpp
@@ -53,6 +55,7 @@ SET (SOURCE_FILES
 	sources/win32_dynamic_library.cpp
 	sources/posix_dynamic_library.cpp
 	sources/win32_helper.cpp
+	sources/json_serializer.cpp
 )
 
 add_library(my_std SHARED ${SOURCE_FILES})

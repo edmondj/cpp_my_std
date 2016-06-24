@@ -40,6 +40,14 @@ namespace my_std
         return out.str();
     }
 
+    template<typename T>
+    bool from_string(const std::string& str, T& value)
+    {
+        std::istringstream is(str);
+
+        return (bool)(is >> value);
+    }
+
 #ifdef __CYGWIN__
 
 #include <stdexcept>
