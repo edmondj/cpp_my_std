@@ -86,6 +86,6 @@ TEST_CASE("Json serializer", "[serial][json]")
         REQUIRE(get(js, "serializable", se)); REQUIRE(se.toto == "toto"); REQUIRE(se.value == 42);
 
         string dump = js.dump();
-        WARN(dump);
+        INFO(dump);
     }
 }

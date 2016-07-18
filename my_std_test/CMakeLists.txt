@@ -21,6 +21,7 @@ SET (SOURCE_FILES
 	sources/dynamic_library_test.cpp
 	sources/functional_test.cpp
 	sources/serializer_test.cpp
+	sources/event_test.cpp
 	sources/main.cpp
 )
 
