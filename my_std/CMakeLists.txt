@@ -39,6 +39,7 @@ SET (SOURCE_FILES
 	includes/my_functional.hpp
 	includes/json_serializer.hpp
 	includes/json.hpp
+	includes/event.hpp
 	sources/end_point.cpp
 	sources/file_system.cpp
 	sources/id_provider.cpp
